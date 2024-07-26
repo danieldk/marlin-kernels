@@ -1,0 +1,22 @@
+[build-system]
+requires = ["cmake>=3.21", "ninja", "packaging", "setuptools>=71.0", "torch"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "marlin-kernels"
+description = "Marlin quantization kernels"
+version = "0.1.0"
+readme = "README.md"
+authors = [{ name = "Daniël de Kok", email = "me@danieldk.eu" }]
+requires-python = ">=3.7"
+dependencies = ["torch"]
+classifiers = [
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "License :: OSI Approved :: Apache Software License",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Operating System :: OS Independent",
+]
