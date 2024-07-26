@@ -178,8 +178,6 @@ jobs:
   publish_package:
     name: Publish package
     needs: [build_wheels]
-    # Disable for now.
-    if: false
 
     runs-on: ubuntu-latest
 
