@@ -18,6 +18,8 @@ def gptq_marlin_gemm(
     size_n: int,
     size_k: int,
     is_k_full: bool,
+    has_zp: bool,
+    use_fp32_reduce: bool,
 ) -> torch.Tensor:
     """
     Matrix multiplication using Marlin kernels. This is an extension of
