@@ -17,6 +17,8 @@ if not SKIP_CUDA_BUILD:
     cc_flag.append("-gencode")
     cc_flag.append("arch=compute_80,code=sm_80")
     cc_flag.append("-gencode")
+    cc_flag.append("arch=compute_86,code=sm_86")
+    cc_flag.append("-gencode")
     cc_flag.append("arch=compute_90,code=sm_90")
 
     extra_compile_args = {
