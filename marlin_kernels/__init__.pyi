@@ -1,5 +1,11 @@
 import torch
 
+def awq_marlin_repack(
+    b_q_weight: torch.Tensor, size_k: int, size_n: int, num_bits: int
+) -> torch.Tensor:
+    """Repack AWQ parameters for GPTQ-Marlin."""
+    ...
+
 def gptq_marlin_gemm(
     a: torch.Tensor,
     b_q_weight: torch.Tensor,
