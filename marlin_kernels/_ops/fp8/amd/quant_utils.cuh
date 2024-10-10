@@ -9,7 +9,7 @@
 #include "../../../attention/dtype_float32.cuh"
 #include "../../../attention/dtype_bfloat16.cuh"
 
-namespace vllm {
+namespace marlin_kernels {
 #ifdef USE_ROCM
 
 namespace fp8 {
@@ -526,6 +526,7 @@ __inline__ __device__ Tout convert(const Tin& x) {
   }
   #endif
   assert(false);
+  return {};  // Squash missing return statement warning
 }
 
 template <typename Tout, typename Tin, Fp8KVCacheDataType kv_dt>
@@ -536,6 +537,7 @@ __inline__ __device__ Tout scaled_convert(const Tin& x, const float scale) {
   }
   #endif
   assert(false);
+  return {};  // Squash missing return statement warning
 }
 
   // The following macro is used to dispatch the conversion function based on
@@ -545,22 +547,22 @@ __inline__ __device__ Tout scaled_convert(const Tin& x, const float scale) {
   #define DISPATCH_BY_KV_CACHE_DTYPE(SRC_DTYPE, KV_DTYPE, FN)                  \
     if (KV_DTYPE == "auto") {                                                  \
       if (SRC_DTYPE == at::ScalarType::Float) {                                \
-        FN(float, float, vllm::Fp8KVCacheDataType::kAuto);                     \
+        FN(float, float, marlin_kernels::Fp8KVCacheDataType::kAuto);                     \
       } else if (SRC_DTYPE == at::ScalarType::Half) {                          \
-        FN(uint16_t, uint16_t, vllm::Fp8KVCacheDataType::kAuto);               \
+        FN(uint16_t, uint16_t, marlin_kernels::Fp8KVCacheDataType::kAuto);               \
       } else if (SRC_DTYPE == at::ScalarType::BFloat16) {                      \
-        FN(__nv_bfloat16, __nv_bfloat16, vllm::Fp8KVCacheDataType::kAuto);     \
+        FN(__nv_bfloat16, __nv_bfloat16, marlin_kernels::Fp8KVCacheDataType::kAuto);     \
       } else {                                                                 \
         TORCH_CHECK(false, "Unsupported input type of kv cache: ", SRC_DTYPE); \
       }                                                                        \
     } else {                                                                   \
       if (KV_DTYPE == "fp8" || KV_DTYPE == "fp8_e4m3") {                       \
         if (SRC_DTYPE == at::ScalarType::Float) {                              \
-          FN(float, uint8_t, vllm::Fp8KVCacheDataType::kFp8E4M3);              \
+          FN(float, uint8_t, marlin_kernels::Fp8KVCacheDataType::kFp8E4M3);              \
         } else if (SRC_DTYPE == at::ScalarType::Half) {                        \
-          FN(uint16_t, uint8_t, vllm::Fp8KVCacheDataType::kFp8E4M3);           \
+          FN(uint16_t, uint8_t, marlin_kernels::Fp8KVCacheDataType::kFp8E4M3);           \
         } else if (SRC_DTYPE == at::ScalarType::BFloat16) {                    \
-          FN(__nv_bfloat16, uint8_t, vllm::Fp8KVCacheDataType::kFp8E4M3);      \
+          FN(__nv_bfloat16, uint8_t, marlin_kernels::Fp8KVCacheDataType::kFp8E4M3);      \
         } else {                                                               \
           TORCH_CHECK(false,                                                   \
                       "Unsupported input type of kv cache: ", SRC_DTYPE);      \
@@ -572,4 +574,4 @@ __inline__ __device__ Tout scaled_convert(const Tin& x, const float scale) {
 
 }  // namespace fp8
 #endif  // USE_ROCM
-}  // namespace vllm
+}  // namespace marlin_kernels
