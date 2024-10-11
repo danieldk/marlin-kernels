@@ -1,3 +1,4 @@
+from pathlib import Path
 import os
 from setuptools import setup
 from torch.utils.cpp_extension import BuildExtension, CUDAExtension
@@ -8,12 +9,15 @@ def append_nvcc_threads(nvcc_extra_args):
     return nvcc_extra_args + ["--threads", nvcc_threads]
 
 
+ROOT = Path(__file__).parent
 SKIP_CUDA_BUILD = os.getenv("MARLIN_SKIP_CUDA_BUILD", "FALSE") == "TRUE"
+OPS_DIR = ROOT / "marlin_kernels" / "_ops"
 
 ext_modules = []
 cc_flag = []
 
 if not SKIP_CUDA_BUILD:
+    cc_flag.append(f"-I{OPS_DIR.resolve()}")
     cc_flag.append("-gencode")
     cc_flag.append("arch=compute_80,code=sm_80")
     cc_flag.append("-gencode")
@@ -40,15 +44,15 @@ if not SKIP_CUDA_BUILD:
 
     ext_modules.append(
         CUDAExtension(
-            name="marlin_kernels",
+            name="marlin_kernels._marlin_kernels_ops",
             sources=[
-                "marlin_kernels/fp8/fp8_marlin.cu",
-                "marlin_kernels/gptq_marlin/awq_marlin_repack.cu",
-                "marlin_kernels/gptq_marlin/gptq_marlin.cu",
-                "marlin_kernels/gptq_marlin/gptq_marlin_repack.cu",
-                "marlin_kernels/marlin/dense/marlin_cuda_kernel.cu",
-                "marlin_kernels/marlin/sparse/marlin_24_cuda_kernel.cu",
-                "marlin_kernels/ext.cpp",
+                "marlin_kernels/_ops/fp8/fp8_marlin.cu",
+                "marlin_kernels/_ops/gptq_marlin/awq_marlin_repack.cu",
+                "marlin_kernels/_ops/gptq_marlin/gptq_marlin.cu",
+                "marlin_kernels/_ops/gptq_marlin/gptq_marlin_repack.cu",
+                "marlin_kernels/_ops/marlin/dense/marlin_cuda_kernel.cu",
+                "marlin_kernels/_ops/marlin/sparse/marlin_24_cuda_kernel.cu",
+                "marlin_kernels/_ops/ext.cpp",
             ],
             extra_compile_args=extra_compile_args,
         )
