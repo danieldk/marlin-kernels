@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, Optional, Tuple, Union
 import torch
 
 core_C_available = (
-    importlib.util.find_spec("._marlin_kernels_ops", "marlin_kernels") is not None
+    importlib.util.find_spec("._marlin_kernels", "marlin_kernels") is not None
 )
 
 
@@ -174,13 +174,13 @@ if TYPE_CHECKING or not core_C_available:
             return cls(exponent, mantissa, 0, True, finite_values_only, nan_repr)
 
 else:
-    import marlin_kernels._marlin_kernels_ops  # noqa: F401
+    import marlin_kernels._marlin_kernels  # noqa: F401
 
-    ScalarType = torch.classes._marlin_kernels_ops.ScalarType
+    ScalarType = torch.classes._marlin_kernels.ScalarType
 
     if hasattr(torch, "_library") and hasattr(torch._library, "register_fake_class"):
         # Needed for dynamo support of ScalarType.
-        @torch._library.register_fake_class("_marlin_kernels_ops::ScalarType")
+        @torch._library.register_fake_class("_marlin_kernels::ScalarType")
         class FakeScalarType:
 
             def __init__(self, scalar_type):
@@ -242,7 +242,7 @@ else:
                 return self.ScalarType.__len__()
 
             def __obj_flatten__(self) -> Tuple[Tuple[str, Any], ...]:
-                return torch.classes._marlin_kernels_ops.ScalarType.__obj_flatten__(
+                return torch.classes._marlin_kernels.ScalarType.__obj_flatten__(
                     self.ScalarType
                 )
 
@@ -251,7 +251,7 @@ else:
                 cls, flat_type: Tuple[Tuple[str, Any], ...]
             ) -> "ScalarType":
                 return cls(
-                    torch.classes._marlin_kernels_ops.ScalarType.__obj_unflatten__(
+                    torch.classes._marlin_kernels.ScalarType.__obj_unflatten__(
                         flat_type
                     )
                 )
