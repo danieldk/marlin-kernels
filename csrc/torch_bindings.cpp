@@ -1,7 +1,9 @@
-#include <torch/library.h>
+#include <torch/all.h>
 
 #include "core/scalar_type.hpp"
 #include "core/registration.h"
+
+#include "ops.h"
 
 // Note on op signatures:
 // The X_meta signatures are for the meta functions corresponding to op X.
@@ -103,6 +105,25 @@ TORCH_LIBRARY_EXPAND(TORCH_EXTENSION_NAME, ops) {
   // conditionally compiled so impl registration is in source file
 
 #endif
+
+  // Compute FP8 quantized tensor for given scaling factor.
+  ops.def(
+      "static_scaled_fp8_quant(Tensor! out, Tensor input, Tensor scale) -> ()");
+  ops.impl("static_scaled_fp8_quant", torch::kCUDA, &static_scaled_fp8_quant);
+
+  // Compute dynamic-per-tensor FP8 quantized tensor and scaling factor.
+  ops.def(
+      "dynamic_scaled_fp8_quant(Tensor! out, Tensor input, Tensor! scale) -> "
+      "()");
+  ops.impl("dynamic_scaled_fp8_quant", torch::kCUDA, &dynamic_scaled_fp8_quant);
+
+  // Compute dynamic-per-token FP8 quantized tensor and scaling factor.
+  ops.def(
+      "dynamic_per_token_scaled_fp8_quant(Tensor! out, Tensor input, "
+      "Tensor! scale, Tensor? scale_ub) -> "
+      "()");
+  ops.impl("dynamic_per_token_scaled_fp8_quant", torch::kCUDA,
+           &dynamic_per_token_scaled_fp8_quant);
 }
 
 REGISTER_EXTENSION(TORCH_EXTENSION_NAME)
