@@ -206,6 +206,13 @@ if(VLLM_GPU_LANG STREQUAL "CUDA")
   )
   FetchContent_MakeAvailable(cutlass)
 
+  list(APPEND VLLM_EXT_SRC
+    "csrc/quantization/cutlass_w8a8/scaled_mm_entry.cu")
+
+  set_gencode_flags_for_srcs(
+    SRCS "${VLLM_EXT_SRC}"
+    CUDA_ARCHS "${CUDA_ARCHS}")
+
   # Only build Marlin kernels if we are building for at least some compatible archs.
   # Keep building Marlin for 9.0 as there are some group sizes and shapes that
   # are not supported by Machete yet.
@@ -227,6 +234,59 @@ if(VLLM_GPU_LANG STREQUAL "CUDA")
   else()
     message(STATUS "Not building Marlin kernels as no compatible archs found"
                    "in CUDA target architectures")
+  endif()
+
+  #
+  # The cutlass_scaled_mm kernels for Hopper (c3x, i.e. CUTLASS 3.x) require
+  # CUDA 12.0 or later (and only work on Hopper, 9.0/9.0a for now).
+  cuda_archs_loose_intersection(SCALED_MM_3X_ARCHS "9.0;9.0a" "${CUDA_ARCHS}")
+  if(${CMAKE_CUDA_COMPILER_VERSION} VERSION_GREATER 12.0 AND SCALED_MM_3X_ARCHS)
+    set(SRCS "csrc/quantization/cutlass_w8a8/scaled_mm_c3x.cu")
+    set_gencode_flags_for_srcs(
+      SRCS "${SRCS}"
+      CUDA_ARCHS "${SCALED_MM_3X_ARCHS}")
+    list(APPEND VLLM_EXT_SRC "${SRCS}")
+    list(APPEND VLLM_GPU_FLAGS "-DENABLE_SCALED_MM_C3X=1")
+    message(STATUS "Building scaled_mm_c3x for archs: ${SCALED_MM_3X_ARCHS}")
+  else()
+    if (NOT ${CMAKE_CUDA_COMPILER_VERSION} VERSION_GREATER 12.0 AND SCALED_MM_3X_ARCHS)
+      message(STATUS "Not building scaled_mm_c3x as CUDA Compiler version is "
+                     "not >= 12.0, we recommend upgrading to CUDA 12.0 or "
+                     "later if you intend on running FP8 quantized models on "
+                     "Hopper.")
+    else()
+      message(STATUS "Not building scaled_mm_c3x as no compatible archs found "
+                     "in CUDA target architectures")
+    endif()
+
+    # clear SCALED_MM_3X_ARCHS so the scaled_mm_c2x kernels know we didn't
+    # build any 3x kernels
+    set(SCALED_MM_3X_ARCHS)
+  endif()
+
+  #
+  # For the cutlass_scaled_mm kernels we want to build the c2x (CUTLASS 2.x)
+  # kernels for the remaining archs that are not already built for 3x.
+  cuda_archs_loose_intersection(SCALED_MM_2X_ARCHS
+    "7.5;8.0;8.6;8.9;9.0" "${CUDA_ARCHS}")
+  # subtract out the archs that are already built for 3x
+  list(REMOVE_ITEM SCALED_MM_2X_ARCHS ${SCALED_MM_3X_ARCHS})
+  if (SCALED_MM_2X_ARCHS)
+    set(SRCS "csrc/quantization/cutlass_w8a8/scaled_mm_c2x.cu")
+    set_gencode_flags_for_srcs(
+      SRCS "${SRCS}"
+      CUDA_ARCHS "${SCALED_MM_2X_ARCHS}")
+    list(APPEND VLLM_EXT_SRC "${SRCS}")
+    list(APPEND VLLM_GPU_FLAGS "-DENABLE_SCALED_MM_C2X=1")
+    message(STATUS "Building scaled_mm_c2x for archs: ${SCALED_MM_2X_ARCHS}")
+  else()
+    if (SCALED_MM_3X_ARCHS)
+      message(STATUS "Not building scaled_mm_c2x as all archs are already built"
+                     " for and covered by scaled_mm_c3x")
+    else()
+      message(STATUS "Not building scaled_mm_c2x as no compatible archs found "
+                    "in CUDA target architectures")
+    endif()
   endif()
 
   #
