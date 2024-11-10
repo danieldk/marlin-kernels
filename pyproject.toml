@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "marlin-kernels"
 description = "Marlin quantization kernels"
-version = "0.3.2"
+version = "0.3.3"
 readme = "README.md"
 authors = [{ name = "Daniël de Kok", email = "me@danieldk.eu" }]
 requires-python = ">=3.7"
