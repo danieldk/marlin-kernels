@@ -63,9 +63,15 @@ def cutlass_scaled_mm_azp(
     azp: Optional[torch.Tensor] = None,
     bias: Optional[torch.Tensor] = None,
 ) -> torch.Tensor:
+    """
+    :param azp_adj: In the per-tensor case, this should include the azp.
+    Always per-channel.
+    :param azp: Only set in the per-token case. Per-token if set.
+    """
     assert b.shape[0] % 16 == 0 and b.shape[1] % 16 == 0
     assert out_dtype is torch.bfloat16 or out_dtype is torch.float16
     assert bias is None or bias.numel() == b.shape[1] and bias.dtype == out_dtype
+    assert azp is None or azp.numel() == a.shape[0]
 
     m = a.shape[0]
     n = b.shape[1]
@@ -275,7 +281,7 @@ def scaled_int8_quant(
     input: torch.Tensor,
     scale: Optional[torch.Tensor] = None,
     azp: Optional[torch.Tensor] = None,
-    symmetric: bool = True
+    symmetric: bool = True,
 ) -> Tuple[torch.Tensor, torch.Tensor, Optional[torch.Tensor]]:
     """
     Quantize the input tensor to int8 and return the quantized tensor and scale, and maybe azp.
@@ -295,20 +301,21 @@ def scaled_int8_quant(
     if scale is not None:
         # static-per-tensor quantization.
         assert symmetric == (
-            azp is
-            None), "azp must only be provided for asymmetric quantization."
+            azp is None
+        ), "azp must only be provided for asymmetric quantization."
         torch.ops._marlin_kernels.static_scaled_int8_quant(output, input, scale, azp)
-        return output, scale, None
+        return output, scale, azp
 
     # dynamic-per-token quantization.
-    input_scales = torch.empty((input.numel() // input.shape[-1], 1),
-                               device=input.device,
-                               dtype=torch.float32)
-    input_azp = None if symmetric else torch.empty_like(input_scales,
-                                                        dtype=torch.int32)
-    torch.ops._marlin_kernels.dynamic_scaled_int8_quant(output, input, input_scales,
-                                           input_azp)
+    input_scales = torch.empty(
+        (input.numel() // input.shape[-1], 1), device=input.device, dtype=torch.float32
+    )
+    input_azp = None if symmetric else torch.empty_like(input_scales, dtype=torch.int32)
+    torch.ops._marlin_kernels.dynamic_scaled_int8_quant(
+        output, input, input_scales, input_azp
+    )
     return output, input_scales, input_azp
+
 
 __all__ = [
     "ScalarType",
