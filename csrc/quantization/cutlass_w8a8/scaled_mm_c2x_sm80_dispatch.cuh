@@ -7,7 +7,7 @@
  * shape.
  */
 
-namespace vllm {
+namespace marlin_kernels {
 
 template <typename InType, typename OutType,
           template <typename, typename> typename Epilogue>
@@ -136,4 +136,4 @@ inline void cutlass_gemm_sm80_dispatch(torch::Tensor& out,
   }
 }
 
-}  // namespace vllm
+}  // namespace marlin_kernels
