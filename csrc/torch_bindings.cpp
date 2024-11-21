@@ -47,34 +47,51 @@ TORCH_LIBRARY_EXPAND(TORCH_EXTENSION_NAME, ops) {
   ops.def(
       "gptq_marlin_24_gemm(Tensor a, Tensor b_q_weight, Tensor b_meta, "
       "Tensor b_scales, Tensor workspace, "
-      "__torch__.torch.classes._marlin_kernels.ScalarType b_q_type, "
-      "int size_m, int size_n, int size_k) -> Tensor");
+      "int b_q_type, "
+      "SymInt size_m, SymInt size_n, SymInt size_k) -> Tensor");
   //  conditionally compiled so impl in source file
 
   // Machete (Dense) Optimized Mixed Precision GEMM for Hopper.
   ops.def(
       "machete_supported_schedules("
-      "   __torch__.torch.classes._marlin_kernels.ScalarType btype"
+      "   ScalarType a_type,"
+      "   int b_type,"
+      "   ScalarType? maybe_group_scales_type,"
+      "   ScalarType? maybe_group_zeros_type,"
+      "   ScalarType? maybe_channel_scales_type,"
+      "   ScalarType? maybe_token_scales_type,"
+      "   ScalarType? maybe_out_type"
       ") -> str[]");
   ops.def(
-      "machete_gemm(Tensor A, Tensor B,"
-      "             __torch__.torch.classes._marlin_kernels.ScalarType btype,"
-      "             Tensor? scales, Tensor? zeros, int? group_size,"
-      "             Tensor? C, float? alpha, float? beta, str? schedule)"
-      "-> Tensor");
+      "machete_mm("
+      "   Tensor A,"
+      "   Tensor B,"
+      "   int b_type,"
+      "   ScalarType? out_type,"
+      "   Tensor? group_scales,"
+      "   Tensor? group_zeros,"
+      "   int?    group_size,"
+      "   Tensor? channel_scales,"
+      "   Tensor? token_scales,"
+      "   str?    schedule"
+      ") -> Tensor");
   ops.def(
-      "machete_prepack_B(Tensor B,"
-      "                  __torch__.torch.classes._marlin_kernels.ScalarType btype)"
-      "-> Tensor");
+      "machete_prepack_B("
+      "   Tensor B,"
+      "   ScalarType a_type,"
+      "   int b_type,"
+      "   ScalarType? group_scales_type"
+      ") -> Tensor");
   // conditionally compiled so impl registration is in source file
+
 
   // gptq_marlin Optimized Quantized GEMM for GPTQ.
   ops.def(
       "gptq_marlin_gemm(Tensor a, Tensor b_q_weight, Tensor b_scales, "
       "Tensor b_zeros, Tensor g_idx, Tensor perm, Tensor workspace, "
-      "__torch__.torch.classes._marlin_kernels.ScalarType b_q_type, "
-      "int size_m, int size_n, int size_k, bool is_k_full, "
-      "bool has_zp, bool use_fp32_reduce) -> Tensor");
+      "int b_q_type, "
+      "SymInt size_m, SymInt size_n, SymInt size_k, bool is_k_full, "
+      "bool has_zp, bool use_fp32_reduce, bool is_zp_float) -> Tensor");
   // conditionally compiled so impl registration is in source file
 
   // gptq_marlin repack from GPTQ.

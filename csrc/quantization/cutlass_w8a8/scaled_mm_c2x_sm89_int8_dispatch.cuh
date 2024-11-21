@@ -7,7 +7,7 @@
  * Gemm shape.
  */
 
-namespace vllm {
+namespace marlin_kernels {
 
 template <typename InType, typename OutType,
           template <typename, typename> typename Epilogue>
@@ -47,32 +47,32 @@ struct sm89_int8_config_default {
     if (np2 <= 4096) {
       using TileShape = cutlass::gemm::GemmShape<128, 128, 64>;
 
-      return vllm::fallback_cutlass_gemm_caller<
-          vllm::cutlass_2x_gemm<cutlass::arch::Sm89, vllm::enable_sm89_to_sm90,
+      return marlin_kernels::fallback_cutlass_gemm_caller<
+          marlin_kernels::cutlass_2x_gemm<cutlass::arch::Sm89, marlin_kernels::enable_sm89_to_sm90,
                                 InType, OutType, Epilogue, TileShape, WarpShape,
                                 InstructionShape, 5>,
           FallbackGemm>(out, a, b, std::forward<EpilogueArgs>(args)...);
     } else if (np2 <= 8192) {
       using TileShape = cutlass::gemm::GemmShape<256, 128, 64>;
 
-      return vllm::fallback_cutlass_gemm_caller<
-          vllm::cutlass_2x_gemm<cutlass::arch::Sm89, vllm::enable_sm89_to_sm90,
+      return marlin_kernels::fallback_cutlass_gemm_caller<
+          marlin_kernels::cutlass_2x_gemm<cutlass::arch::Sm89, marlin_kernels::enable_sm89_to_sm90,
                                 InType, OutType, Epilogue, TileShape, WarpShape,
                                 InstructionShape, 3>,
           FallbackGemm>(out, a, b, std::forward<EpilogueArgs>(args)...);
     } else if (np2 <= 16384) {
       using TileShape = cutlass::gemm::GemmShape<128, 128, 64>;
 
-      return vllm::fallback_cutlass_gemm_caller<
-          vllm::cutlass_2x_gemm<cutlass::arch::Sm89, vllm::enable_sm89_to_sm90,
+      return marlin_kernels::fallback_cutlass_gemm_caller<
+          marlin_kernels::cutlass_2x_gemm<cutlass::arch::Sm89, marlin_kernels::enable_sm89_to_sm90,
                                 InType, OutType, Epilogue, TileShape, WarpShape,
                                 InstructionShape, 5>,
           FallbackGemm>(out, a, b, std::forward<EpilogueArgs>(args)...);
     } else {
       using TileShape = cutlass::gemm::GemmShape<256, 128, 64>;
 
-      return vllm::fallback_cutlass_gemm_caller<
-          vllm::cutlass_2x_gemm<cutlass::arch::Sm89, vllm::enable_sm89_to_sm90,
+      return marlin_kernels::fallback_cutlass_gemm_caller<
+          marlin_kernels::cutlass_2x_gemm<cutlass::arch::Sm89, marlin_kernels::enable_sm89_to_sm90,
                                 InType, OutType, Epilogue, TileShape, WarpShape,
                                 InstructionShape, 3>,
           FallbackGemm>(out, a, b, std::forward<EpilogueArgs>(args)...);
@@ -103,32 +103,32 @@ struct sm89_int8_config_M256 {
     if (np2 <= 4096) {
       using TileShape = cutlass::gemm::GemmShape<64, 128, 128>;
 
-      return vllm::fallback_cutlass_gemm_caller<
-          vllm::cutlass_2x_gemm<cutlass::arch::Sm89, vllm::enable_sm89_to_sm90,
+      return marlin_kernels::fallback_cutlass_gemm_caller<
+          marlin_kernels::cutlass_2x_gemm<cutlass::arch::Sm89, marlin_kernels::enable_sm89_to_sm90,
                                 InType, OutType, Epilogue, TileShape, WarpShape,
                                 InstructionShape, 3>,
           FallbackGemm>(out, a, b, std::forward<EpilogueArgs>(args)...);
     } else if (np2 <= 8192) {
       using TileShape = cutlass::gemm::GemmShape<128, 128, 64>;
 
-      return vllm::fallback_cutlass_gemm_caller<
-          vllm::cutlass_2x_gemm<cutlass::arch::Sm89, vllm::enable_sm89_to_sm90,
+      return marlin_kernels::fallback_cutlass_gemm_caller<
+          marlin_kernels::cutlass_2x_gemm<cutlass::arch::Sm89, marlin_kernels::enable_sm89_to_sm90,
                                 InType, OutType, Epilogue, TileShape, WarpShape,
                                 InstructionShape, 5>,
           FallbackGemm>(out, a, b, std::forward<EpilogueArgs>(args)...);
     } else if (np2 <= 16384) {
       using TileShape = cutlass::gemm::GemmShape<256, 128, 64>;
 
-      return vllm::fallback_cutlass_gemm_caller<
-          vllm::cutlass_2x_gemm<cutlass::arch::Sm89, vllm::enable_sm89_to_sm90,
+      return marlin_kernels::fallback_cutlass_gemm_caller<
+          marlin_kernels::cutlass_2x_gemm<cutlass::arch::Sm89, marlin_kernels::enable_sm89_to_sm90,
                                 InType, OutType, Epilogue, TileShape, WarpShape,
                                 InstructionShape, 3>,
           FallbackGemm>(out, a, b, std::forward<EpilogueArgs>(args)...);
     } else {
       using TileShape = cutlass::gemm::GemmShape<128, 128, 64>;
 
-      return vllm::fallback_cutlass_gemm_caller<
-          vllm::cutlass_2x_gemm<cutlass::arch::Sm89, vllm::enable_sm89_to_sm90,
+      return marlin_kernels::fallback_cutlass_gemm_caller<
+          marlin_kernels::cutlass_2x_gemm<cutlass::arch::Sm89, marlin_kernels::enable_sm89_to_sm90,
                                 InType, OutType, Epilogue, TileShape, WarpShape,
                                 InstructionShape, 5>,
           FallbackGemm>(out, a, b, std::forward<EpilogueArgs>(args)...);
@@ -159,8 +159,8 @@ struct sm89_int8_config_M128 {
       using TileShape = cutlass::gemm::GemmShape<64, 128, 128>;
       using WarpShape = cutlass::gemm::GemmShape<64, 64, 64>;
 
-      return vllm::fallback_cutlass_gemm_caller<
-          vllm::cutlass_2x_gemm<cutlass::arch::Sm89, vllm::enable_sm89_to_sm90,
+      return marlin_kernels::fallback_cutlass_gemm_caller<
+          marlin_kernels::cutlass_2x_gemm<cutlass::arch::Sm89, marlin_kernels::enable_sm89_to_sm90,
                                 InType, OutType, Epilogue, TileShape, WarpShape,
                                 InstructionShape, 3>,
           FallbackGemm>(out, a, b, std::forward<EpilogueArgs>(args)...);
@@ -168,8 +168,8 @@ struct sm89_int8_config_M128 {
       using TileShape = cutlass::gemm::GemmShape<128, 128, 64>;
       using WarpShape = cutlass::gemm::GemmShape<64, 64, 64>;
 
-      return vllm::fallback_cutlass_gemm_caller<
-          vllm::cutlass_2x_gemm<cutlass::arch::Sm89, vllm::enable_sm89_to_sm90,
+      return marlin_kernels::fallback_cutlass_gemm_caller<
+          marlin_kernels::cutlass_2x_gemm<cutlass::arch::Sm89, marlin_kernels::enable_sm89_to_sm90,
                                 InType, OutType, Epilogue, TileShape, WarpShape,
                                 InstructionShape, 5>,
           FallbackGemm>(out, a, b, std::forward<EpilogueArgs>(args)...);
@@ -177,8 +177,8 @@ struct sm89_int8_config_M128 {
       using TileShape = cutlass::gemm::GemmShape<64, 64, 128>;
       using WarpShape = cutlass::gemm::GemmShape<32, 64, 64>;
 
-      return vllm::fallback_cutlass_gemm_caller<
-          vllm::cutlass_2x_gemm<cutlass::arch::Sm89, vllm::enable_sm89_to_sm90,
+      return marlin_kernels::fallback_cutlass_gemm_caller<
+          marlin_kernels::cutlass_2x_gemm<cutlass::arch::Sm89, marlin_kernels::enable_sm89_to_sm90,
                                 InType, OutType, Epilogue, TileShape, WarpShape,
                                 InstructionShape, 5>,
           FallbackGemm>(out, a, b, std::forward<EpilogueArgs>(args)...);
@@ -209,8 +209,8 @@ struct sm89_int8_config_M64 {
       using TileShape = cutlass::gemm::GemmShape<64, 64, 128>;
       using WarpShape = cutlass::gemm::GemmShape<32, 64, 64>;
 
-      return vllm::fallback_cutlass_gemm_caller<
-          vllm::cutlass_2x_gemm<cutlass::arch::Sm89, vllm::enable_sm89_to_sm90,
+      return marlin_kernels::fallback_cutlass_gemm_caller<
+          marlin_kernels::cutlass_2x_gemm<cutlass::arch::Sm89, marlin_kernels::enable_sm89_to_sm90,
                                 InType, OutType, Epilogue, TileShape, WarpShape,
                                 InstructionShape, 5>,
           FallbackGemm>(out, a, b, std::forward<EpilogueArgs>(args)...);
@@ -218,8 +218,8 @@ struct sm89_int8_config_M64 {
       using TileShape = cutlass::gemm::GemmShape<64, 128, 128>;
       using WarpShape = cutlass::gemm::GemmShape<64, 64, 64>;
 
-      return vllm::fallback_cutlass_gemm_caller<
-          vllm::cutlass_2x_gemm<cutlass::arch::Sm89, vllm::enable_sm89_to_sm90,
+      return marlin_kernels::fallback_cutlass_gemm_caller<
+          marlin_kernels::cutlass_2x_gemm<cutlass::arch::Sm89, marlin_kernels::enable_sm89_to_sm90,
                                 InType, OutType, Epilogue, TileShape, WarpShape,
                                 InstructionShape, 3>,
           FallbackGemm>(out, a, b, std::forward<EpilogueArgs>(args)...);
@@ -250,8 +250,8 @@ struct sm89_int8_config_M32 {
       using TileShape = cutlass::gemm::GemmShape<32, 64, 128>;
       using WarpShape = cutlass::gemm::GemmShape<16, 64, 64>;
 
-      return vllm::fallback_cutlass_gemm_caller<
-          vllm::cutlass_2x_gemm<cutlass::arch::Sm89, vllm::enable_sm89_to_sm90,
+      return marlin_kernels::fallback_cutlass_gemm_caller<
+          marlin_kernels::cutlass_2x_gemm<cutlass::arch::Sm89, marlin_kernels::enable_sm89_to_sm90,
                                 InType, OutType, Epilogue, TileShape, WarpShape,
                                 InstructionShape, 5>,
           FallbackGemm>(out, a, b, std::forward<EpilogueArgs>(args)...);
@@ -259,8 +259,8 @@ struct sm89_int8_config_M32 {
       using TileShape = cutlass::gemm::GemmShape<32, 128, 128>;
       using WarpShape = cutlass::gemm::GemmShape<32, 64, 64>;
 
-      return vllm::fallback_cutlass_gemm_caller<
-          vllm::cutlass_2x_gemm<cutlass::arch::Sm89, vllm::enable_sm89_to_sm90,
+      return marlin_kernels::fallback_cutlass_gemm_caller<
+          marlin_kernels::cutlass_2x_gemm<cutlass::arch::Sm89, marlin_kernels::enable_sm89_to_sm90,
                                 InType, OutType, Epilogue, TileShape, WarpShape,
                                 InstructionShape, 4>,
           FallbackGemm>(out, a, b, std::forward<EpilogueArgs>(args)...);
@@ -291,16 +291,16 @@ struct sm89_int8_config_M16 {
     if (np2 <= 8192) {
       using TileShape = cutlass::gemm::GemmShape<16, 64, 128>;
 
-      return vllm::fallback_cutlass_gemm_caller<
-          vllm::cutlass_2x_gemm<cutlass::arch::Sm89, vllm::enable_sm89_to_sm90,
+      return marlin_kernels::fallback_cutlass_gemm_caller<
+          marlin_kernels::cutlass_2x_gemm<cutlass::arch::Sm89, marlin_kernels::enable_sm89_to_sm90,
                                 InType, OutType, Epilogue, TileShape, WarpShape,
                                 InstructionShape, 5>,
           FallbackGemm>(out, a, b, std::forward<EpilogueArgs>(args)...);
     } else {
       using TileShape = cutlass::gemm::GemmShape<16, 128, 128>;
 
-      return vllm::fallback_cutlass_gemm_caller<
-          vllm::cutlass_2x_gemm<cutlass::arch::Sm89, vllm::enable_sm89_to_sm90,
+      return marlin_kernels::fallback_cutlass_gemm_caller<
+          marlin_kernels::cutlass_2x_gemm<cutlass::arch::Sm89, marlin_kernels::enable_sm89_to_sm90,
                                 InType, OutType, Epilogue, TileShape, WarpShape,
                                 InstructionShape, 4>,
           FallbackGemm>(out, a, b, std::forward<EpilogueArgs>(args)...);
@@ -350,4 +350,4 @@ inline void cutlass_gemm_sm89_int8_dispatch(torch::Tensor& out,
   }
 }
 
-}  // namespace vllm
+}  // namespace marlin_kernels

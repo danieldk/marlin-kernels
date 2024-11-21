@@ -89,7 +89,7 @@ static inline __device__ int8_t int32_to_int8(int32_t x) {
 #endif
 }
 
-namespace vllm {
+namespace marlin_kernels {
 
 template <typename scalar_t, typename scale_type>
 __global__ void static_scaled_int8_quant_kernel(
@@ -221,7 +221,7 @@ __global__ void dynamic_scaled_int8_azp_quant_kernel(
   }
 }
 
-}  // namespace vllm
+}  // namespace marlin_kernels
 
 void static_scaled_int8_quant(torch::Tensor& out,          // [..., hidden_size]
                               torch::Tensor const& input,  // [..., hidden_size]
@@ -240,12 +240,12 @@ void static_scaled_int8_quant(torch::Tensor& out,          // [..., hidden_size]
   VLLM_DISPATCH_FLOATING_TYPES(
       input.scalar_type(), "static_scaled_int8_quant_kernel", [&] {
         if (!azp) {
-          vllm::static_scaled_int8_quant_kernel<scalar_t, float>
+          marlin_kernels::static_scaled_int8_quant_kernel<scalar_t, float>
               <<<grid, block, 0, stream>>>(
                   input.data_ptr<scalar_t>(), out.data_ptr<int8_t>(),
                   scale.data_ptr<float>(), hidden_size);
         } else {
-          vllm::static_scaled_int8_azp_quant_kernel<scalar_t, float, int32_t>
+          marlin_kernels::static_scaled_int8_azp_quant_kernel<scalar_t, float, int32_t>
               <<<grid, block, 0, stream>>>(
                   input.data_ptr<scalar_t>(), out.data_ptr<int8_t>(),
                   scale.data_ptr<float>(), azp->data_ptr<int32_t>(),
@@ -271,12 +271,12 @@ void dynamic_scaled_int8_quant(
   VLLM_DISPATCH_FLOATING_TYPES(
       input.scalar_type(), "dynamic_scaled_int8_quant_kernel", [&] {
         if (!azp) {
-          vllm::dynamic_scaled_int8_quant_kernel<scalar_t, float>
+          marlin_kernels::dynamic_scaled_int8_quant_kernel<scalar_t, float>
               <<<grid, block, 0, stream>>>(
                   input.data_ptr<scalar_t>(), out.data_ptr<int8_t>(),
                   scales.data_ptr<float>(), hidden_size);
         } else {
-          vllm::dynamic_scaled_int8_azp_quant_kernel<scalar_t, float, int32_t>
+          marlin_kernels::dynamic_scaled_int8_azp_quant_kernel<scalar_t, float, int32_t>
               <<<grid, block, 0, stream>>>(
                   input.data_ptr<scalar_t>(), out.data_ptr<int8_t>(),
                   scales.data_ptr<float>(), azp->data_ptr<int32_t>(),
