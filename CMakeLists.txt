@@ -186,18 +186,19 @@ message(STATUS "FetchContent base directory: ${FETCHCONTENT_BASE_DIR}")
 set(VLLM_EXT_SRC
   "csrc/quantization/compressed_tensors/int8_quant_kernels.cu"
   "csrc/quantization/fp8/common.cu"
-  "csrc/torch_bindings.cpp")
+  "csrc/torch_bindings.cpp"
+  "csrc/cutlass_extensions/common.cpp")
 
 if(VLLM_GPU_LANG STREQUAL "CUDA")
   SET(CUTLASS_ENABLE_HEADERS_ONLY ON CACHE BOOL "Enable only the header library")
 
   # Set CUTLASS_REVISION manually -- its revision detection doesn't work in this case.
-  set(CUTLASS_REVISION "v3.5.1" CACHE STRING "CUTLASS revision to use")
+  set(CUTLASS_REVISION "v3.6.0" CACHE STRING "CUTLASS revision to use")
 
   FetchContent_Declare(
         cutlass
         GIT_REPOSITORY https://github.com/nvidia/cutlass.git
-        GIT_TAG v3.5.1
+        GIT_TAG v3.6.0
         GIT_PROGRESS TRUE
 
         # Speed up CUTLASS download by retrieving only the specified GIT_TAG instead of the history.
